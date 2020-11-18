@@ -1,27 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import gql from "graphql-tag";
 import { useMutation } from "@apollo/client";
 import { Button, Form } from "semantic-ui-react";
+import { useForm } from "../utils/useForm";
+import { AuthContext } from "../context/auth";
 
 export default function Register(props) {
+  const context = useContext(AuthContext);
   const [errors, setErrors] = useState({});
-  const [values, setValues] = useState({
+
+  const { onChange, onSubmit, values } = useForm(register, {
     userName: "",
     email: "",
     password: "",
     confirmedPassword: "",
   });
 
-  const onChange = (e) => {
-    setValues({
-      ...values,
-      [e.target.name]: e.target.value,
-    });
-  };
-
   const [addUser, { loading }] = useMutation(REGISTER_QUERY, {
-    update(proxy, result) {
-      console.log("Result:", result);
+    update(proxy, { data: { register: userData } }) {
+      context.login(userData);
       props.history.push("/");
     },
     onError(err) {
@@ -30,10 +27,10 @@ export default function Register(props) {
     },
     variables: values,
   });
-  const onSubmit = (e) => {
-    e.preventDefault();
+
+  function register() {
     addUser();
-  };
+  }
   return (
     <div className="form-container">
       <Form onSubmit={onSubmit} noValidate className={loading ? "loading" : ""}>

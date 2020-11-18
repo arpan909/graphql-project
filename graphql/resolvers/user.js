@@ -31,9 +31,10 @@ module.exports = {
         throw new UserInputError("User not found!", { errors });
       }
       const match = await bcrypt.compare(password, user.password);
+      console.log(match);
       if (!match) {
         errors.general = "Credentials not matching!";
-        throw new Error("Credentials not matching!", { errors });
+        throw new UserInputError("Credentials not matching!", { errors });
       }
       const token = generateToken(user);
 
@@ -60,11 +61,8 @@ module.exports = {
       }
       const user = await User.findOne({ userName });
       if (user) {
-        throw new UserInputError("Username is taken", {
-          error: {
-            userName: "This username is taken!!",
-          },
-        });
+        errors.userName = "Username is taken@#$#@$";
+        throw new UserInputError("Username is taken", { errors });
       }
       password = await bcrypt.hash(password, 12);
       const newUser = new User({
