@@ -14,7 +14,7 @@ function generateToken(user) {
       email: user.email,
     },
     SECRETE_KEY,
-    { expiresIn: "1h" }
+    { expiresIn: "8h" }
   );
 }
 
@@ -32,6 +32,7 @@ module.exports = {
       }
       const match = await bcrypt.compare(password, user.password);
       console.log(match);
+      console.log(user._doc);
       if (!match) {
         errors.general = "Credentials not matching!";
         throw new UserInputError("Credentials not matching!", { errors });
