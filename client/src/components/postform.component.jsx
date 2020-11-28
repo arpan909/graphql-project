@@ -1,4 +1,3 @@
-import { ValuesOfCorrectTypeRule } from "graphql";
 import React from "react";
 import { Button, Form } from "semantic-ui-react";
 import { useForm } from "../utils/useForm";
@@ -27,6 +26,9 @@ export default function PostForm() {
       });
       values.body = "";
     },
+    onError(err) {
+      console.log(err);
+    },
   });
   function createPostCallback() {
     createPost();
@@ -40,12 +42,28 @@ export default function PostForm() {
             name="body"
             onChange={onChange}
             value={values.body}
+            error={error ? true : false}
+            style={{ width: "100%" }}
           ></Form.Input>
-          <Button type="submit" color="teal">
+          <Button
+            type="submit"
+            color="teal"
+            style={{
+              marginBottom: 20,
+              marginLeft: "45%",
+            }}
+          >
             Submit
           </Button>
         </Form.Field>
       </Form>
+      {error && (
+        <div className="ui error message" style={{ marginBottom: 5 }}>
+          <ul className="list">
+            <li>{error.graphQLErrors[0].message}</li>
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
