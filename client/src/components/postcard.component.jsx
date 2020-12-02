@@ -39,16 +39,21 @@ export default function PostCard({
       </Card.Content>
       <Card.Content extra>
         <LikeButton user={user} post={{ id, likes, likeCount }}></LikeButton>
-        <Button
-          labelPosition="right"
-          onClick={commentOnPost}
-          as={Link}
-          to={`/posts/${id}`}
-        >
-          <Button color="blue" basic>
+        <Button labelPosition="right" onClick={commentOnPost}>
+          <Button
+            color="blue"
+            as={Link}
+            to={user ? `/posts/${id}` : "/login"}
+            basic
+          >
             <Icon name="comments" />
           </Button>
-          <Label as="a" basic color="blue" pointing="left">
+          <Label
+            basic
+            color="blue"
+            pointing="left"
+            style={{ paddingBottom: 12 }}
+          >
             {commentCount}
           </Label>
         </Button>

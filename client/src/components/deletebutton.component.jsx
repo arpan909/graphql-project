@@ -5,29 +5,35 @@ import { Button, Icon, Confirm } from "semantic-ui-react";
 import lodash from "lodash";
 import { FETCH_POSTS_QUERY } from "../utils/getPostsQuery";
 
-export default function DeleteButton({ postId }) {
+export default function DeleteButton({ postId, commentId, callback }) {
   const [confirmButton, setConfirmButton] = useState(false);
-  const [deletePost] = useMutation(DELETE_MUTATION, {
+  const mutation = commentId ? DELETE_COMMENT_MUTATION : DELETE_MUTATION;
+  const [deletePost] = useMutation(mutation, {
     update(proxy, result) {
       setConfirmButton(false);
-      const data = lodash.cloneDeep(
-        proxy.readQuery({
+      if (!commentId) {
+        const data = lodash.cloneDeep(
+          proxy.readQuery({
+            query: FETCH_POSTS_QUERY,
+          })
+        );
+        data.getPosts = data.getPosts.filter((post) => post.id !== postId);
+        proxy.writeQuery({
           query: FETCH_POSTS_QUERY,
-        })
-      );
-      data.getPosts = data.getPosts.filter((post) => post.id !== postId);
-      proxy.writeQuery({
-        query: FETCH_POSTS_QUERY,
-        data,
-      });
+          data,
+        });
+      }
+
+      if (callback) callback();
     },
     variables: {
       postId,
+      commentId,
     },
   });
 
   return (
-    <div>
+    <>
       <Button
         color="linkedin"
         as="div"
@@ -41,12 +47,40 @@ export default function DeleteButton({ postId }) {
         open={confirmButton}
         onConfirm={deletePost}
       ></Confirm>
-    </div>
+    </>
   );
 }
 
 const DELETE_MUTATION = gql`
   mutation deletePost($postId: ID!) {
-    deletePost(postId: $postId)
+    deletePost(postId: $postId) {
+      id
+      userName
+      comments {
+        id
+        userName
+        body
+        createdAt
+      }
+      body
+      createdAt
+    }
+  }
+`;
+
+const DELETE_COMMENT_MUTATION = gql`
+  mutation deleteComment($postId: ID!, $commentId: ID!) {
+    deleteComment(postId: $postId, commentId: $commentId) {
+      id
+      body
+      comments {
+        id
+        userName
+        body
+        createdAt
+      }
+      userName
+      createdAt
+    }
   }
 `;
